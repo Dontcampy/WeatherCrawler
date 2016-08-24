@@ -66,6 +66,7 @@ while queue:
                     errorLog = open('errorLog.txt', 'a')
                     errorLog.write(time.strftime('[' + "%a, %d %b %Y %H:%M:%S", time.localtime()) + ']' + str(log) + '\n')
                     errorLog.close()
+                    queue.append(url)
                     queue_save = open('queue.txt', 'w')
                     queue_save.write(';'.join(list(queue)))
                     queue_save.close()
