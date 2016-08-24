@@ -10,9 +10,12 @@ from bs4 import BeautifulSoup
 
 file_visitedR = open('visited.txt', 'r') #读取已访问列表
 file_weblistR = open('weblist.txt', 'r') #读取爬虫列表
-file_queue = open('queue.txt', 'w+') #读取queue（如果有）
+file_queue = open('queue.txt', 'r') #读取queue（如果有）
 
-queue = deque(file_queue.readlines())
+queue = deque(file_queue.readline().split(';'))
+print('===============读取队列=========================================================================')
+print(queue)
+print('===============读取队列=========================================================================')
 file_queue.close()
 #初始化已访问列表,防止重复爬取url
 visited = set(file_visitedR.readline().split(';'))
@@ -22,9 +25,10 @@ file_visitedR.close()
 webList = set(file_weblistR.readline().split(';'))
 file_weblistR.close()
 
-url = "http://www.accuweather.com/zh/browse-locations/asi/cn" #爬虫入口
+if queue[0] == '':
+    url = "http://www.accuweather.com/zh/browse-locations/asi/cn" #爬虫入口
+    queue[0] = url
 
-queue.append(url)
 cnt = 0
 
 
@@ -40,30 +44,30 @@ while queue:
     cnt += 1
 
     try:
-        response = requests.get(url, timeout = 180)
+        response = requests.get(url, timeout = 60)
         soup = BeautifulSoup(response.text)
     #出现错误将重试3次（超过3次将停止程序），并输出至errorLog.txt
-    except ConnectionError:
+    except requests.exceptions.RequestException :
         try:
             print('出现异常，正在尝试重新连接（1）...')
-            response = requests.get(url, timeout=180)
+            response = requests.get(url, timeout = 120)
             soup = BeautifulSoup(response.text)
-        except requests.exceptions.RequestException as log:
+        except requests.exceptions.RequestException:
             try:
                 print('出现异常，正在尝试重新连接（2）...')
-                response = requests.get(url, timeout=180)
+                response = requests.get(url, timeout = 240)
                 soup = BeautifulSoup(response.text)
-            except requests.exceptions.RequestException as log:
+            except requests.exceptions.RequestException:
                 try:
                     print('出现异常，正在尝试重新连接（3）...')
-                    response = requests.get(url, timeout=180)
+                    response = requests.get(url, timeout = 360)
                     soup = BeautifulSoup(response.text)
                 except requests.exceptions.RequestException as log:
                     errorLog = open('errorLog.txt', 'a')
-                    errorLog.write(time.strftime('[' + "%a, %d %b %Y %H:%M:%S", time.localtime()) + ']' + str(log) + '\r\n')
+                    errorLog.write(time.strftime('[' + "%a, %d %b %Y %H:%M:%S", time.localtime()) + ']' + str(log) + '\n')
                     errorLog.close()
                     queue_save = open('queue.txt', 'w')
-                    queue_save.writelines(list(queue))
+                    queue_save.write(';'.join(list(queue)))
                     queue_save.close()
                     print('连接失败，异常内容：' + str(log))
                     exit()
