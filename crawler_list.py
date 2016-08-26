@@ -1,5 +1,4 @@
 ##爬取AccuWeather网站并生成列表 仅中国地区
-##请一口气运行完
 import requests
 import re
 import time
@@ -46,7 +45,7 @@ while queue:
     try:
         response = requests.get(url, timeout = 60)
         soup = BeautifulSoup(response.text)
-    #出现错误将重试3次（超过3次将停止程序），并输出至errorLog.txt
+    #异常处理，出现错误将重试3次（超过3次将停止程序），并输出至errorLog.txt
     except requests.exceptions.RequestException :
         try:
             print('出现异常，正在尝试重新连接（1）...')
