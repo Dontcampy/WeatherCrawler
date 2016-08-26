@@ -138,6 +138,7 @@ def getNightInform(soup):
 file_weblistR = open('weblist.txt', 'r') #读取爬虫列表
 webList = file_weblistR.readline().split(';')
 webList.pop() # 去除最后一个;造成的空元素
+print('读取完毕，共' + str(len(webList)) + '条。')
 
 # 数据库初始化
 conn = sqlite3.connect('data.db')
@@ -182,6 +183,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS TEMP_WEATHER
 while webList:
 
     url = webList.pop()
+    print('正在爬取-------->' + url)
     try:
         response = requests.get(url, timeout = 60)
         soup = BeautifulSoup(response.text)
@@ -216,10 +218,26 @@ while webList:
     DayInform = getDayInform(soup)
     NightInform = getNightInform(soup)
     upTime = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
-
+    All_data = []
+    for Ele in Location:
+        All_data.append(Ele)
+    for Ele in DayInform:
+        All_data.append(Ele)
+    for Ele in NightInform:
+        All_data.append(Ele)
+    All_data.append(upTime)
     #写入数据库 build
-    cur.execute("INSERT INTO TEMP_WEATHER(ID, CONTINENT, COUNTRY, CITY, NAME, NAME_EN) \
-                VALUES(?,?,?,?,?,?)", Location)
+    cur.execute('''INSERT INTO TEMP_WEATHER
+                (ID, CONTINENT, COUNTRY, CITY, NAME, NAME_EN,
+                 TEMPERATURE_H, CONDITION,  REALFEEL_T, REALFEEL_R, WIND, GUST, UV, STORM, WATER, RAIN,
+                 SNOW, ICE,
+                 TEMPERATURE_L, CONDITION_N, REALFEEL_T_N, REALFEEL_R_N, WIND_N, GUST_N, UV_N, STORM_N,
+                 WATER_N, RAIN_N, SNOW_N, ICE_N,
+                 UPDATE_TIME)
+                VALUES(?,?,?,?,?,?,
+                       ?,?,?,?,?,?,?,?,?,?,?,?,
+                       ?,?,?,?,?,?,?,?,?,?,?,?,
+                       ?)''', tuple(All_data))
     # cur.execute('''UPDATE TEMP_WEATHER
     #                 set TEMPERATURE_H = ?, CONDITION = ?, REALFEEL_T = ?, REALFEEL_R = ?, WIND = ?, GUST = ?, UV = ?, STORM = ?, WATER = ?, RAIN = ?, SNOW = ?, ICE = ?,
     #                     TEMPERATURE_L = ?, CONDITION_N = ?, REALFEEL_T_N = ?, REALFEEL_R_N = ?, WIND_N = ?, GUST_N = ?, UV_N = ?, STORM_N = ?, WATER_N = ?, RAIN_N = ?, SNOW_N = ?, ICE_N = ?,
@@ -227,5 +245,7 @@ while webList:
     #                                                             NightInform[0], NightInform[1], NightInform[2], NightInform[3], NightInform[4], NightInform[5], NightInform[6], NightInform[7], NightInform[8], NightInform[9], NightInform[10], NightInform[11],
     #                                                             upTime, Location[0]))
     conn.commit()
+    print('写入成功')
 
 conn.close()
+print('爬虫爬取完毕')
