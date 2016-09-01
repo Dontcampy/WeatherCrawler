@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 import requests
 from requests import exceptions
 from  collections import deque
-import sqlite3
 import time
+import pymongo
 
 ##Function##
 ############
@@ -141,43 +141,9 @@ webList.pop() # 去除最后一个;造成的空元素
 print('读取完毕，共' + str(len(webList)) + '条。')
 
 # 数据库初始化
-conn = sqlite3.connect('data.db')
-print('Opened database successfully')
-cur = conn.cursor()
-
-cur.execute('''CREATE TABLE IF NOT EXISTS TEMP_WEATHER
-            (
-            ID INT PRIMARY KEY     NOT NULL,
-            CONTINENT      TEXT    NOT NULL,
-            COUNTRY        TEXT    NOT NULL,
-            CITY           TEXT    NOT NULL,
-            NAME           TEXT    NOT NULL,
-            NAME_EN        TEXT    NOT NULL,
-            TEMPERATURE_H  INT    ,
-            CONDITION      TEXT    ,
-            REALFEEL_T     INT    ,
-            REALFEEL_R     INT    ,
-            WIND           TEXT    ,
-            GUST           INT    ,
-            UV             TEXT    ,
-            STORM          INT    ,
-            WATER          INT    ,
-            RAIN           INT    ,
-            SNOW           INT    ,
-            ICE            INT    ,
-            TEMPERATURE_L  INT    ,
-            CONDITION_N    TEXT    ,
-            REALFEEL_T_N   INT    ,
-            REALFEEL_R_N   INT    ,
-            WIND_N         TEXT    ,
-            GUST_N         INT    ,
-            UV_N           TEXT    ,
-            STORM_N        INT    ,
-            WATER_N        INT    ,
-            RAIN_N         INT    ,
-            SNOW_N         INT    ,
-            ICE_N          INT    ,
-            UPDATE_TIME    TEXT    );''')
+client = pymongo.MongoClient("localhost", 27017)
+db = client.w_data
+cur_weather = db.cur_weather
 
 
 while webList:
@@ -226,26 +192,92 @@ while webList:
     for Ele in NightInform:
         All_data.append(Ele)
     All_data.append(upTime)
-    #写入数据库 build
-    cur.execute('''INSERT INTO TEMP_WEATHER
-                (ID, CONTINENT, COUNTRY, CITY, NAME, NAME_EN,
-                 TEMPERATURE_H, CONDITION,  REALFEEL_T, REALFEEL_R, WIND, GUST, UV, STORM, WATER, RAIN,
-                 SNOW, ICE,
-                 TEMPERATURE_L, CONDITION_N, REALFEEL_T_N, REALFEEL_R_N, WIND_N, GUST_N, UV_N, STORM_N,
-                 WATER_N, RAIN_N, SNOW_N, ICE_N,
-                 UPDATE_TIME)
-                VALUES(?,?,?,?,?,?,
-                       ?,?,?,?,?,?,?,?,?,?,?,?,
-                       ?,?,?,?,?,?,?,?,?,?,?,?,
-                       ?)''', tuple(All_data))
-    # cur.execute('''UPDATE TEMP_WEATHER
-    #                 set TEMPERATURE_H = ?, CONDITION = ?, REALFEEL_T = ?, REALFEEL_R = ?, WIND = ?, GUST = ?, UV = ?, STORM = ?, WATER = ?, RAIN = ?, SNOW = ?, ICE = ?,
-    #                     TEMPERATURE_L = ?, CONDITION_N = ?, REALFEEL_T_N = ?, REALFEEL_R_N = ?, WIND_N = ?, GUST_N = ?, UV_N = ?, STORM_N = ?, WATER_N = ?, RAIN_N = ?, SNOW_N = ?, ICE_N = ?,
-    #                     UPDATE_TIME = ? WHERE ID = ?''', (DayInform[0], DayInform[1], DayInform[2], DayInform[3], DayInform[4], DayInform[5], DayInform[6], DayInform[7], DayInform[8], DayInform[9], DayInform[10], DayInform[11],
-    #                                                             NightInform[0], NightInform[1], NightInform[2], NightInform[3], NightInform[4], NightInform[5], NightInform[6], NightInform[7], NightInform[8], NightInform[9], NightInform[10], NightInform[11],
-    #                                                             upTime, Location[0]))
-    conn.commit()
-    print('写入成功')
+    # 写入数据库 build
+    if cur_weather.find_one({'_id': Location[0]}) == None:
+        # *Weird indentation
+        new_book = {'_id': Location[0],
+                    'Location': {'Continent': Location[1], 'Country': Location[2], 'City': Location[3],
+                                 'Name': Location[4], 'NameEn': Location[5]},
+                    'Weather': [{'Day':
+                                     {
+                                         'Temperature_hi': DayInform[0],
+                                         'Condition': DayInform[1],
+                                         'RealFeel_temp': DayInform[2],
+                                         'RealFeel_rain': DayInform[3],
+                                         'Wind': DayInform[4],
+                                         'Gust': DayInform[5],
+                                         'UV': DayInform[6],
+                                         'Storm': DayInform[7],
+                                         'Water': DayInform[8],
+                                         'Rain': DayInform[9],
+                                         'Snow': DayInform[10],
+                                         'Ice': DayInform[11]
+                                     },
+                                 'Night':
+                                     {
+                                         'Temperature_hi': NightInform[0],
+                                         'Condition': NightInform[1],
+                                         'RealFeel_temp': NightInform[2],
+                                         'RealFeel_rain': NightInform[3],
+                                         'Wind': NightInform[4],
+                                         'Gust': NightInform[5],
+                                         'UV': NightInform[6],
+                                         'Storm': NightInform[7],
+                                         'Water': NightInform[8],
+                                         'Rain': NightInform[9],
+                                         'Snow': NightInform[10],
+                                         'Ice': NightInform[11]},
+                                 'Update_Time': upTime
+                                 }]
+                    }
+        cur_weather.insert(new_book)
+    else:
+        # *Weird indentation
+        up_book = [{'Day':
+                        {
+                            'Temperature_hi': DayInform[0],
+                            'Condition': DayInform[1],
+                            'RealFeel_temp': DayInform[2],
+                            'RealFeel_rain': DayInform[3],
+                            'Wind': DayInform[4],
+                            'Gust': DayInform[5],
+                            'UV': DayInform[6],
+                            'Storm': DayInform[7],
+                            'Water': DayInform[8],
+                            'Rain': DayInform[9],
+                            'Snow': DayInform[10],
+                            'Ice': DayInform[11]
+                        },
+                    'Night':
+                        {
+                            'Temperature_hi': NightInform[0],
+                            'Condition': NightInform[1],
+                            'RealFeel_temp': NightInform[2],
+                            'RealFeel_rain': NightInform[3],
+                            'Wind': NightInform[4],
+                            'Gust': NightInform[5],
+                            'UV': NightInform[6],
+                            'Storm': NightInform[7],
+                            'Water': NightInform[8],
+                            'Rain': NightInform[9],
+                            'Snow': NightInform[10],
+                            'Ice': NightInform[11]
+                        },
+                    'Update_Time': upTime
+                    }]
+        # *Weird indentation。。。。。。
+        cur_weather.update({'_id': Location[0]},
+                     {
+                         '$push':
+                             {
+                                 'Weather':
+                                 {
+                                     '$each': up_book,
+                                     '$position': 0
+                                 }
+                             }
+                     })
 
-conn.close()
+
+
 print('爬虫爬取完毕')
