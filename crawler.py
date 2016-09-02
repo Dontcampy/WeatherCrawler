@@ -5,7 +5,6 @@ import re
 from bs4 import BeautifulSoup
 import requests
 from requests import exceptions
-from  collections import deque
 import time
 import pymongo
 
@@ -266,17 +265,7 @@ while webList:
                     'Update_Time': upTime
                     }]
         # *Weird indentation。。。。。。
-        cur_weather.update({'_id': Location[0]},
-                     {
-                         '$push':
-                             {
-                                 'Weather':
-                                 {
-                                     '$each': up_book,
-                                     '$position': 0
-                                 }
-                             }
-                     })
+        cur_weather.update({'_id': Location[0]}, {'$push': {'Weather': {'$each': up_book, '$position': 0}}})
 
 
 
