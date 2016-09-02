@@ -150,23 +150,23 @@ while webList:
     url = webList.pop()
     print('正在爬取-------->' + url)
     try:
-        response = requests.get(url, timeout = 60)
+        response = requests.get(url, timeout = 10)
         soup = BeautifulSoup(response.text)
     #异常处理，出现错误将重试3次（超过3次将停止程序），并输出至errorLog.txt
     except requests.exceptions.RequestException :
         try:
             print('出现异常，正在尝试重新连接（1）...')
-            response = requests.get(url, timeout = 120)
+            response = requests.get(url, timeout = 20)
             soup = BeautifulSoup(response.text)
         except requests.exceptions.RequestException:
             try:
                 print('出现异常，正在尝试重新连接（2）...')
-                response = requests.get(url, timeout = 240)
+                response = requests.get(url, timeout = 40)
                 soup = BeautifulSoup(response.text)
             except requests.exceptions.RequestException:
                 try:
                     print('出现异常，正在尝试重新连接（3）...')
-                    response = requests.get(url, timeout = 360)
+                    response = requests.get(url, timeout = 80)
                     soup = BeautifulSoup(response.text)
                 except requests.exceptions.RequestException as log:
                     errorLog = open('errorLog.txt', 'a')
@@ -177,7 +177,7 @@ while webList:
                     queue_save.write(';'.join(webList))
                     queue_save.close()
                     print('连接失败，异常内容：' + str(log))
-                    exit()
+                    break
 
     Location = getLocation(soup)
     DayInform = getDayInform(soup)
