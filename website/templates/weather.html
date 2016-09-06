@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %} {{name}} {% endblock %}
+
+{% block pre_content %}
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <ul class="breadcrumb">
+            <li>
+                 <a href="../">主页</a>
+            </li>
+            <li>
+                 {{name1}}
+            </li>
+            <li class="active">
+                数据更新时间: {{Update_Time}}
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_content %}
+<div class="row clearfix">
+    <div class="col-md-6 column">
+        <img alt="140x140" src="../static/icon/day-s.png" />
+        <div class="list-group">
+             <a href="#" class="list-group-item active">白昼</a>
+            <div class="list-group-item">
+                最高气温: {{Temperature_hi}}℃
+            </div>
+            <div class="list-group-item">
+                <h4 class="list-group-item-heading">
+                    {{Condition}}
+                </h4>
+                <ul>
+                    <li>RealFeel® {{RealFeel_temp}}℃</li>
+                    <li>降水 {{RealFeel_rain}}%</li>
+                    <li>{{Wind}}</li>
+                    <li>阵风: {{Gust}} 千米/时</li>
+                    <li>最高紫外线指数: {{UV}}</li>
+                    <li>雷雨: {{Storm}}%</li>
+                    <li>降水: {{Water}} 毫米</li>
+                    <li>雨: {{Rain}} 毫米</li>
+                    <li>雪: {{Snow}} 厘米</li>
+                    <li>冰冻: {{Ice}} 毫米</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 column">
+        <img alt="140x140" src="../static/icon/night-s.png" />
+        <div class="list-group">
+             <a href="#" class="list-group-item active">夜晚</a>
+            <div class="list-group-item">
+                最低气温: {{Temperature_low}}℃
+            </div>
+            <div class="list-group-item">
+                <h4 class="list-group-item-heading">
+                    {{ConditionN}}
+                </h4>
+                <ul>
+                    <li>RealFeel® {{RealFeel_tempN}}℃</li>
+                    <li>降水 {{RealFeel_rainN}}%</li>
+                    <li>{{WindN}}</li>
+                    <li>阵风: {{GustN}} 千米/时</li>
+                    <li>最高紫外线指数: {{UVN}}</li>
+                    <li>雷雨: {{StormN}}%</li>
+                    <li>降水: {{WaterN}} 毫米</li>
+                    <li>雨: {{RainN}} 毫米</li>
+                    <li>雪: {{SnowN}} 厘米</li>
+                    <li>冰冻: {{IceN}} 毫米</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

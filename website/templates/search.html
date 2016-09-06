@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %} - Index - {% endblock %}
+
+{% block pre_content %}
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<ul class="breadcrumb">
+				<li>
+					 <a href="../">主页</a>
+				</li>
+				<li class="active">
+					搜索
+				</li>
+			</ul>
+		</div>
+	</div>
+{% endblock %}
+
+
+{% block page_content %}
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<h2>
+				{{result}}
+			</h2>
+			<p>
+				最高气温: {{temperature_hi}}℃   最低气温: {{temperature_low}}℃
+			</p>
+			<p>
+				 <a class="btn" href="../weather/{{name}}">更多细节 »</a>
+			</p>
+		</div>
+	</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Play With Flask{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle"
+             data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Weather Crawler</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/">主页</a></li>
+                <li><a href="https://github.com/Dontcampy/WeatherCrawler" target="_blank">Github</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% block pre_content %}{% endblock %}
+    <div id="code_search">
+    <h2 class="text-normal">
+      <svg aria-hidden="true" class="octicon octicon-search" height="24" version="1.1" viewBox="0 0 16 16" width="24"><path d="M15.7 13.3l-3.81-3.83A5.93 5.93 0 0 0 13 6c0-3.31-2.69-6-6-6S1 2.69 1 6s2.69 6 6 6c1.3 0 2.48-.41 3.47-1.11l3.83 3.81c.19.2.45.3.7.3.25 0 .52-.09.7-.3a.996.996 0 0 0 0-1.41v.01zM7 10.7c-2.59 0-4.7-2.11-4.7-4.7 0-2.59 2.11-4.7 4.7-4.7 2.59 0 4.7 2.11 4.7 4.7 0 2.59-2.11 4.7-4.7 4.7z"></path></svg>
+        Search
+    </h2>
+    <!-- </textarea> --><!-- '"` --><form accept-charset="UTF-8" action="/search" class="search_repos my-3" id="search_form" method="get"><div style="margin:0;padding:0;display:inline"></div>
+      <div class="flex-table search-form-fluid">
+        <div class="flex-table-item flex-table-item-primary">
+          <input class="form-control input-block" type="text" name="key" data-hotkey="s" placeholder="Search Your City" aria-label="Search GitHub" tabindex="1" autocapitalize="off" autofocus="" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="flex-table-item">
+          <button class="btn" type="submit" tabindex="3">Search</button>
+        </div>
+      </div>
+    </form>
+    </div>
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
