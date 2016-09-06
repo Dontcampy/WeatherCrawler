@@ -7,6 +7,7 @@ import requests
 from requests import exceptions
 import time
 import pymongo
+from pymongo import IndexModel
 
 ##Function##
 ############
@@ -144,7 +145,7 @@ client = pymongo.MongoClient("localhost", 27017)
 db = client.w_data
 cur_weather = db.cur_weather
 
-
+flag = 0
 while webList:
 
     url = webList.pop()
@@ -177,7 +178,7 @@ while webList:
                     queue_save.write(';'.join(webList))
                     queue_save.close()
                     print('连接失败，异常内容：' + str(log))
-                    break
+                    continue
 
     Location = getLocation(soup)
     DayInform = getDayInform(soup)
@@ -193,6 +194,7 @@ while webList:
     All_data.append(upTime)
     # 写入数据库 build
     if cur_weather.find_one({'_id': Location[0]}) == None:
+        flag = 1
         # *Weird indentation
         new_book = {'_id': Location[0],
                     'Location': {'Continent': Location[1], 'Country': Location[2], 'City': Location[3],
@@ -214,7 +216,7 @@ while webList:
                                      },
                                  'Night':
                                      {
-                                         'Temperature_hi': NightInform[0],
+                                         'Temperature_low': NightInform[0],
                                          'Condition': NightInform[1],
                                          'RealFeel_temp': NightInform[2],
                                          'RealFeel_rain': NightInform[3],
@@ -249,7 +251,7 @@ while webList:
                         },
                     'Night':
                         {
-                            'Temperature_hi': NightInform[0],
+                            'Temperature_low': NightInform[0],
                             'Condition': NightInform[1],
                             'RealFeel_temp': NightInform[2],
                             'RealFeel_rain': NightInform[3],
@@ -267,6 +269,14 @@ while webList:
         # *Weird indentation。。。。。。
         cur_weather.update({'_id': Location[0]}, {'$push': {'Weather': {'$each': up_book, '$position': 0}}})
 
-
+# 生成索引
+if flag == 1:
+    index1 = IndexModel([("Location.Continent", pymongo.ASCENDING)])
+    index2 = IndexModel([("Location.Country", pymongo.ASCENDING)])
+    index3 = IndexModel([("Location.City", pymongo.ASCENDING)])
+    index4 = IndexModel([("Location.Name", pymongo.ASCENDING)])
+    index5 = IndexModel([("Location.NameEn", pymongo.ASCENDING)])
+    cur_weather.create_indexes([index1, index2, index3, index4, index5])
+    print('Create Index Successfully')
 
 print('爬虫爬取完毕')
