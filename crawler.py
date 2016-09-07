@@ -37,26 +37,27 @@ def getDayInform(soup):
     panel = soup.find(class_ = 'detail-tab-panel')
     try:
         stime = panel.find(class_ = 'day muted')
-        match = re.search(r'(\d+)', stime.find(class_ = 'temp').text)
+        match = re.search(r'(\d+)', stime.find(class_ = 'large-temp').text)
         hi_temp = int(match.group(1))
     except AttributeError:
         stime = panel.find(class_='day')
-        match = re.search(r'(\d+)', stime.find(class_='temp').text)
+        match = re.search(r'(\d+)', stime.find(class_='large-temp').text)
         hi_temp = int(match.group(1))
 
+
     # Condition
-    desc = stime.find(class_='desc')
-    condition = desc.find_all('p')
-    wea_condition = condition[4].text
+    cond = stime.find(class_='cond')
+    match = re.search(r'(\S+)', cond.text)
+    wea_condition = match.group(1)
 
     #RealFeel®
     realfeel = stime.find_all(class_ = 'realfeel')
-
     match = re.search(r'(\d+)', realfeel[0].text)
     realfeel_temp = int(match.group(1))
 
-    match = re.search(r'(\d+)', realfeel[1].text)
-    realfeel_rain = int(match.group(1))
+    rate = stime.find_all(class_ = 'precip')
+    match = re.search(r'(\d+)', rate[0].text)
+    rainRate = int(match.group(1))
 
     # wind,rain,UV
     misc = stime.find_all('strong')
@@ -82,29 +83,36 @@ def getDayInform(soup):
     # 冰冻
     match = re.search(r'(\d+)', misc[7].text)
     misc_ice = int(match.group(1))
+    # 降水小时数
+    match = re.search(r'(\d+)', misc[8].text)
+    misc_whour = int(match.group(1))
+    # 降雨小时数
+    match = re.search(r'(\d+)', misc[9].text)
+    misc_rhour = int(match.group(1))
 
-    return hi_temp, wea_condition, realfeel_temp, realfeel_rain, misc_wind, misc_gust, misc_UV, misc_storm, misc_water, misc_rain, misc_snow, misc_ice
+    return hi_temp, wea_condition, realfeel_temp, rainRate, misc_wind, misc_gust, misc_UV, misc_storm, misc_water,\
+           misc_rain, misc_snow, misc_ice, misc_whour, misc_rhour
 
 #Get night information and lowest temperature
 def getNightInform(soup):
-    panel = soup.find(class_='detail-tab-panel')
+    panel = soup.find(class_ = 'detail-tab-panel')
     stime = panel.find(class_ = 'night')
-    match = re.search(r'(\d+)', stime.find(class_='temp').text)
-    low_temp = int(match.group(1))
+    match = re.search(r'(\d+)', stime.find(class_ = 'large-temp').text)
+    hi_temp = int(match.group(1))
 
-    # RealFeel®
+    # Condition
+    cond = stime.find(class_='cond')
+    match = re.search(r'(\S+)', cond.text)
+    wea_condition = match.group(1)
+
+    #RealFeel®
     realfeel = stime.find_all(class_ = 'realfeel')
-
     match = re.search(r'(\d+)', realfeel[0].text)
     realfeel_temp = int(match.group(1))
 
-    match = re.search(r'(\d+)', realfeel[1].text)
-    realfeel_rain = int(match.group(1))
-
-    # Condition
-    desc = stime.find(class_='desc')
-    condition = desc.find_all('p')
-    wea_condition = condition[4].text
+    rate = stime.find_all(class_ = 'precip')
+    match = re.search(r'(\d+)', rate[0].text)
+    rainRate = int(match.group(1))
 
     # wind,rain,UV
     misc = stime.find_all('strong')
@@ -130,8 +138,15 @@ def getNightInform(soup):
     # 冰冻
     match = re.search(r'(\d+)', misc[7].text)
     misc_ice = int(match.group(1))
+    # 降水小时数
+    match = re.search(r'(\d+)', misc[8].text)
+    misc_whour = int(match.group(1))
+    # 降雨小时数
+    match = re.search(r'(\d+)', misc[9].text)
+    misc_rhour = int(match.group(1))
 
-    return low_temp, wea_condition, realfeel_temp, realfeel_rain, misc_wind, misc_gust, misc_UV, misc_storm, misc_water, misc_rain, misc_snow, misc_ice
+    return hi_temp, wea_condition, realfeel_temp, rainRate, misc_wind, misc_gust, misc_UV, misc_storm, misc_water,\
+           misc_rain, misc_snow, misc_ice, misc_whour, misc_rhour
 ##########
 ## Main ##
 ##########
@@ -184,14 +199,6 @@ while webList:
     DayInform = getDayInform(soup)
     NightInform = getNightInform(soup)
     upTime = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
-    All_data = []
-    for Ele in Location:
-        All_data.append(Ele)
-    for Ele in DayInform:
-        All_data.append(Ele)
-    for Ele in NightInform:
-        All_data.append(Ele)
-    All_data.append(upTime)
     # 写入数据库 build
     if cur_weather.find_one({'_id': Location[0]}) == None:
         flag = 1
@@ -212,7 +219,9 @@ while webList:
                                          'Water': DayInform[8],
                                          'Rain': DayInform[9],
                                          'Snow': DayInform[10],
-                                         'Ice': DayInform[11]
+                                         'Ice': DayInform[11],
+                                         'WaterHour': DayInform[12],
+                                         'RainWater': DayInform[13]
                                      },
                                  'Night':
                                      {
@@ -227,7 +236,10 @@ while webList:
                                          'Water': NightInform[8],
                                          'Rain': NightInform[9],
                                          'Snow': NightInform[10],
-                                         'Ice': NightInform[11]},
+                                         'Ice': NightInform[11],
+                                         'WaterHour': NightInform[12],
+                                         'RainWater': NightInform[13]
+                                     },
                                  'Update_Time': upTime
                                  }]
                     }
@@ -247,7 +259,9 @@ while webList:
                             'Water': DayInform[8],
                             'Rain': DayInform[9],
                             'Snow': DayInform[10],
-                            'Ice': DayInform[11]
+                            'Ice': DayInform[11],
+                            'WaterHour': DayInform[12],
+                            'RainHour': DayInform[13]
                         },
                     'Night':
                         {
@@ -262,7 +276,9 @@ while webList:
                             'Water': NightInform[8],
                             'Rain': NightInform[9],
                             'Snow': NightInform[10],
-                            'Ice': NightInform[11]
+                            'Ice': NightInform[11],
+                            'WaterHour': NightInform[12],
+                            'RainHour': NightInform[13]
                         },
                     'Update_Time': upTime
                     }]

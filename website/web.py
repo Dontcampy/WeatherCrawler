@@ -30,10 +30,12 @@ def weather(name):
                            RealFeel_temp = day['RealFeel_temp'], RealFeel_rain = day['RealFeel_rain'],
                            Wind = day['Wind'], Gust = day['Gust'], UV = day['UV'], Storm = day['Storm'],
                            Water = day['Water'], Rain = day['Rain'], Snow = day['Snow'], Ice = day['Ice'],
+                           WaterHour = day['WaterHour'], RainHour = day['RainHour'],
                            Temperature_low = night['Temperature_low'], ConditionN = night['Condition'],
                            RealFeel_tempN = night['RealFeel_temp'], RealFeel_rainN = night['RealFeel_rain'],
                            WindN = night['Wind'], GustN = night['Gust'], UVN = night['UV'], StormN = night['Storm'],
-                           WaterN = night['Water'], RainN = night['Rain'], SnowN = night['Snow'], IceN = night['Ice']
+                           WaterN = night['Water'], RainN = night['Rain'], SnowN = night['Snow'], IceN = night['Ice'],
+                           WaterHourN = night['WaterHour'], RainHourN = night['RainHour']
                            )
 
 @app.route('/search')
