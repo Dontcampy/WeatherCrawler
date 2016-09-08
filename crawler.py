@@ -9,6 +9,7 @@ import time
 import pymongo
 from pymongo import IndexModel
 
+
 ##Function##
 ############
 def getLocation(soup):
@@ -221,7 +222,7 @@ while webList:
                                          'Snow': DayInform[10],
                                          'Ice': DayInform[11],
                                          'WaterHour': DayInform[12],
-                                         'RainWater': DayInform[13]
+                                         'RainHour': DayInform[13]
                                      },
                                  'Night':
                                      {
@@ -238,7 +239,7 @@ while webList:
                                          'Snow': NightInform[10],
                                          'Ice': NightInform[11],
                                          'WaterHour': NightInform[12],
-                                         'RainWater': NightInform[13]
+                                         'RainHour': NightInform[13]
                                      },
                                  'Update_Time': upTime
                                  }]
